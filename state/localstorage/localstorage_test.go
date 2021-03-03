@@ -19,14 +19,11 @@ func TestInit(t *testing.T) {
 	s := NewLocalStorageStore(logger.NewLogger("logger"))
 	t.Run("Init with valid metadata", func(t *testing.T) {
 		m.Properties = map[string]string{
-			"accountName":   "acc",
-			"accountKey":    "e+Dnvl8EOxYxV94nurVaRQ==",
-			"containerName": "dapr",
+			"hostPath": "/temp",
 		}
 		err := s.Init(m)
 		assert.Nil(t, err)
-		assert.Equal(t, "acc.blob.core.windows.net", s.containerURL.URL().Host)
-		assert.Equal(t, "/dapr", s.containerURL.URL().Path)
+		assert.Equal(t, "/temp", s.hostPath)
 	})
 
 	t.Run("Init with missing metadata", func(t *testing.T) {
@@ -35,29 +32,7 @@ func TestInit(t *testing.T) {
 		}
 		err := s.Init(m)
 		assert.NotNil(t, err)
-		assert.Equal(t, err, fmt.Errorf("missing or empty accountName field from metadata"))
-	})
-}
-
-func TestGetBlobStorageMetaData(t *testing.T) {
-	t.Run("Nothing at all passed", func(t *testing.T) {
-		m := make(map[string]string)
-		_, err := getBlobStorageMetadata(m)
-
-		assert.NotNil(t, err)
-	})
-
-	t.Run("All parameters passed and parsed", func(t *testing.T) {
-		m := make(map[string]string)
-		m["accountName"] = "acc"
-		m["accountKey"] = "key"
-		m["containerName"] = "dapr"
-		meta, err := getBlobStorageMetadata(m)
-
-		assert.Nil(t, err)
-		assert.Equal(t, "acc", meta.accountName)
-		assert.Equal(t, "key", meta.accountKey)
-		assert.Equal(t, "dapr", meta.containerName)
+		assert.Equal(t, err, fmt.Errorf("missing or empty hostPath field from metadata"))
 	})
 }
 
